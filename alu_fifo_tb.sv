@@ -14,13 +14,13 @@ module tb();
 
     clk = 0;
     reset = 0;
-    valid = 0;
-    #3;
+    #1;
     reset = 1;
-    #20;
+    #1;
     reset = 0;
-        @(posedge clk);
+    
 
+    @(posedge clk);
     data = 355;
     valid = 1;
     @(posedge clk);
@@ -32,23 +32,16 @@ module tb();
     @(posedge clk);
         data = 10'h110;
     @(posedge clk);
+        data = 10'h253;
+     @(posedge clk);
+        data = 10'h110;
+     @(posedge clk);
+        data = 10'h140;
+     @(posedge clk);
         data = 10'h150;
      @(posedge clk);
-        data = 10'h250;
-     @(posedge clk);
-        data = 10'h240;
-     @(posedge clk);
-        data = 10'h250;
-     @(posedge clk);
-        data = 10'h130;
- @(posedge clk);
-        data = 10'h230;
- @(posedge clk);
-        data = 10'h330;
- @(posedge clk);
-        data = 10'h230;
- @(posedge clk);
-        data = 10'h130;
+
+valid = 0;
 
        #300;
 
