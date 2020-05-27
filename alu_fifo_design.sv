@@ -15,7 +15,7 @@ module top(clk,reset,data,valid,ready,result);
   
   fifo f_in(clk,reset,data,data_out_fifo,valid,valid_out,ready_out_alu,full,empty);
   alu alu1(clk,reset,valid_out,data_out_fifo[3:0],data_out_fifo[7:4],data_out_fifo[9:8],data_out_alu,ready_out_alu);
-  fifo #(.memory_width(8)) f_out(clk,reset,data_out_alu,result,ready_out_alu,ready,1'b1,full_out,empty_out);
+  fifo #(.memory_width(8)) f_out(clk,reset,data_out_alu,result,ready_out_alu,ready,ready_out_alu,full_out,empty_out);
   
 endmodule
 
@@ -120,10 +120,6 @@ module alu(clk,reset,valid,data1,data2,operand,result,ready);
             3: result = data1/data2;            
           endcase 
         end
-    end
-     
-   
-  
-  
+    end 
   
 endmodule
