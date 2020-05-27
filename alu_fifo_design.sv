@@ -98,7 +98,7 @@ module alu(clk,reset,valid,data1,data2,operand,result,ready);
     end
   always@(posedge clk)
     begin
-      if(valid)
+      if(valid || (!ready))
         begin
           case(operand)
             0: result = data1+data2;
