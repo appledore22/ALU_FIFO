@@ -14,7 +14,7 @@ module top(clk,reset,data,valid,ready,result);
   wire full_out,empty_out;
   
   fifo f_in(clk,reset,data,data_out_fifo,valid,valid_out,ready_out_alu,full,empty);
-  alu alu1(reset,valid_out,data_out_fifo[3:0],data_out_fifo[7:4],data_out_fifo[9:8],data_out_alu,ready_out_alu);
+  alu alu1(clk,reset,valid_out,data_out_fifo[3:0],data_out_fifo[7:4],data_out_fifo[9:8],data_out_alu,ready_out_alu);
   fifo #(.memory_width(8)) f_out(clk,reset,data_out_alu,result,ready_out_alu,ready,1'b1,full_out,empty_out);
   
 endmodule
@@ -74,39 +74,56 @@ module fifo(clk,reset,data_in,data_out,valid,valid_out,ready,full,empty);
           valid_out <= 1;
           rptr <= rptr + 1;          
         end
-      else
-        valid_out <= 0;
     end
 endmodule
 
-module alu(reset,valid,data1,data2,operand,result,ready);
-  input reset;
+module alu(clk,reset,valid,data1,data2,operand,result,ready);
+  
+  parameter cycles = 3;
+  
+  input clk,reset;
   input valid;
   input [3:0]data1,data2;
   input [1:0]operand;
   output reg [8:0]result;
   output reg ready;
   
+  reg [4:0]count = 0;
+  
   always@(posedge reset)
     begin
       ready <= 1;
       result <= 0;
+      count <= 0;
     end
-  always@(data1 or data2 or operand)
+  always@(posedge clk)
     begin
       if(valid)
         begin
           case(operand)
             0: result = data1+data2;
             1: result = data1-data2;
-            2: result = data1*data2;
+            2: 
+              	begin                  
+                  if(count == cycles-1)
+                    begin
+                       result = data1*data2;
+                      	ready = 1;
+                      count = 0;
+                    end
+                  else
+                    begin
+                     	count = count + 1;
+                  		ready = 0;
+                    end
+                end
             3: result = data1/data2;            
-          endcase          
-        end
-      else 
-        begin
-          ready = 0;
+          endcase 
         end
     end
+     
+   
+  
+  
   
 endmodule
