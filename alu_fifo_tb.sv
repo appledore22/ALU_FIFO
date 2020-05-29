@@ -1,53 +1,62 @@
 // Code your testbench here
 // or browse Examples
-module tb();
-  reg clk,reset;
-  reg [9:0]data;
-  reg valid;
-  wire ready;
-  wire [8:0]result;
+module test();
+  reg clk;
+  reg reset;
   
-  top t1(clk,reset,data,valid,ready,result);
-  initial begin
-    $dumpfile("test.vcd");
+  // write data channel
+  reg [7:0] wdata;
+  reg wvalid;
+  wire wready;	
+  
+  // read data channel
+  wire rvalid;
+  wire [7:0] rdata;
+  reg rready;
+  
+  bit [8:0] data_stored [$];
+  
+  axi_fifo af1(clk,reset,wdata,wvalid,wready,rvalid,rdata,rready);
+  
+  initial 
+    begin
+       $dumpfile("test.vcd");
     $dumpvars;
 
-    clk = 0;
-    reset = 0;
-    #1;
-    reset = 1;
-    #1;
-    reset = 0;
-    
-
-    @(posedge clk);
-    data = 355;
-    valid = 1;
-    @(posedge clk);
-        data = 10'h151;
-    @(posedge clk);
-        data = 10'h232;
-    @(posedge clk);
-        data = 10'h140;
-    @(posedge clk);
-        data = 10'h110;
-    @(posedge clk);
-        data = 10'h253;
-     @(posedge clk);
-        data = 10'h110;
-     @(posedge clk);
-        data = 10'h140;
-     @(posedge clk);
-        data = 10'h150;
-     @(posedge clk);
-
-valid = 0;
-
-       #300;
-
-
-    $finish;
-  end
+      clk = 0;
+      reset = 1;
+      #10;
+      reset = 0;
+      rready = 0;
+      
+      fork
+        begin
+          repeat(10)
+            begin
+              wait(wready == 1);
+              @(negedge clk);
+              wvalid = 1;
+              wdata = $random;
+            end
+        end
+        begin
+          #40;
+          repeat(3)
+            begin
+              @(posedge clk);
+              wait(rvalid == 1);
+              rready = 1;
+              @(posedge clk);
+              data_stored.push_back(rdata);
+            end
+          rready = 0;
+        end
+      join_none
+      
+      #200;
+      $finish;
+    end
   
   always #5 clk = ~clk;
+  
 endmodule
